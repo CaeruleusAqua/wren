@@ -32,6 +32,14 @@ bool validateNum(WrenVM* vm, Value arg, const char* argName)
   RETURN_ERROR_FMT("$ must be a number.", argName);
 }
 
+bool validateBoolOrNum(WrenVM* vm, Value arg, const char* argName)
+{
+    if(IS_NUM(arg) || IS_BOOL(arg)) return true;
+    RETURN_ERROR_FMT("$ must be a number or boolean.", argName);
+}
+
+
+
 bool validateIntValue(WrenVM* vm, double value, const char* argName)
 {
   if (trunc(value) == value) return true;

@@ -652,18 +652,105 @@ DEF_NUM_CONSTANT(minSafeInteger, -9007199254740991.0)
 #define DEF_NUM_INFIX(name, op, type)                                          \
     DEF_PRIMITIVE(num_##name)                                                  \
     {                                                                          \
-      if (!validateNum(vm, args[1], "Right operand")) return false;            \
+      if (!validateNum(vm, args[1], "Right operand of "#op))                   \
+            return false;            \
       RETURN_##type(AS_NUM(args[0]) op AS_NUM(args[1]));                       \
     }
 
-DEF_NUM_INFIX(minus,    -,  NUM)
-DEF_NUM_INFIX(plus,     +,  NUM)
-DEF_NUM_INFIX(multiply, *,  NUM)
+
+//DEF_NUM_INFIX(minus,    -,  NUM)
+//DEF_NUM_INFIX(plus,     +,  NUM)
+//DEF_NUM_INFIX(multiply, *,  NUM)
 DEF_NUM_INFIX(divide,   /,  NUM)
 DEF_NUM_INFIX(lt,       <,  BOOL)
 DEF_NUM_INFIX(gt,       >,  BOOL)
 DEF_NUM_INFIX(lte,      <=, BOOL)
 DEF_NUM_INFIX(gte,      >=, BOOL)
+
+
+DEF_PRIMITIVE(num_multiply)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) * AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) * AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of * must be a number or boolean.");
+    return false;
+}
+
+DEF_PRIMITIVE(num_plus)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) * AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) + AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of + must be a number or boolean.");
+    return false;
+}
+
+DEF_PRIMITIVE(num_minus)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) - AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_NUM(args[0]) - AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of - must be a number or boolean.");
+    return false;
+}
+
+
+DEF_PRIMITIVE(bool_multiply)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) * AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) * AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of - must be a number or boolean.");
+    return false;
+}
+
+
+DEF_PRIMITIVE(bool_plus)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) + AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) + AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of - must be a number or boolean.");
+    return false;
+}
+
+
+DEF_PRIMITIVE(bool_minus)
+{
+    if(IS_NUM(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) - AS_NUM(args[1]));
+    }
+    if(IS_BOOL(args[1])) {
+        RETURN_NUM(AS_BOOL(args[0]) - AS_BOOL(args[1]));
+    }
+
+    RETURN_ERROR_FMT("Right operand of - must be a number or boolean.");
+    return false;
+}
+
+
+
 
 // Defines a primitive on Num that call infix bitwise [op].
 #define DEF_NUM_BITWISE(name, op)                                              \
@@ -1301,6 +1388,9 @@ void wrenInitializeCore(WrenVM* vm)
   vm->boolClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Bool"));
   PRIMITIVE(vm->boolClass, "toString", bool_toString);
   PRIMITIVE(vm->boolClass, "!", bool_not);
+  PRIMITIVE(vm->boolClass, "*(_)", bool_multiply);
+  PRIMITIVE(vm->boolClass, "-(_)", bool_minus);
+  PRIMITIVE(vm->boolClass, "+(_)", bool_plus);
 
   vm->fiberClass = AS_CLASS(wrenFindVariable(vm, coreModule, "Fiber"));
   PRIMITIVE(vm->fiberClass->obj.classObj, "new(_)", fiber_new);
