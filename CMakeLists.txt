@@ -1,6 +1,5 @@
 project(wren)
 
-
 option(WREN_OPT_META "Enable the optional Meta feature" ON)
 option(WREN_OPT_RANDOM "Enable the optional Random generator" ON)
 
@@ -46,13 +45,24 @@ else()
 endif()
 
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(wren
         PUBLIC
         $<INSTALL_INTERFACE:include>
-        $<BUILD_INTERFACE:
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/include>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/include>
         PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/vm
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/optional
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/vm>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src/optional>
 )
 
+install(TARGETS wren
+        EXPORT wren
+        LIBRARY DESTINATION lib
+        ARCHIVE DESTINATION lib
+        RUNTIME DESTINATION bin
+        INCLUDES DESTINATION include)
+
+## Export the target for use by other CMake projects
+#install(EXPORT wren
+#        FILE wren.cmake
+#        NAMESPACE AURORA::
+#        DESTINATION lib/cmake/AURORA)
